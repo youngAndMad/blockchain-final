@@ -1,0 +1,64 @@
+/* Overall banner container */
+.banner {
+  background: linear-gradient(
+    to right,
+    #00b4db,
+    #0083b0
+  ); /* Gradient background */
+  padding: 60px 30px;
+  text-align: center;
+  color: white; /* Text is white for better contrast */
+  border-radius: 10px; /* Adds subtle rounding to the banner edges */
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+}
+
+/* Heading styling */
+.banner h2 {
+  margin: 0;
+  font-size: 2.5em; /* Increase font size for heading */
+  font-weight: bold;
+  line-height: 1.2;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2); /* Adds a soft shadow to make text stand out */
+}
+
+/* Paragraph styling */
+.banner p {
+  font-size: 1.5em; /* Slightly larger font for better readability */
+  margin: 20px 0;
+  max-width: 600px; /* Limits width for better readability on large screens */
+  margin-left: auto;
+  margin-right: auto;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Consistent text shadow */
+}
+
+/* Image container */
+.banner div {
+  margin: 20px 0;
+}
+
+.banner img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px; /* Soft corners for the image */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds depth to the image */
+}
+
+/* Button styling */
+.banner button {
+  padding: 12px 30px;
+  font-size: 18px;
+  background-color: #ff5722; /* Eye-catching orange */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Light shadow for button depth */
+}
+
+/* Hover effect for the button */
+.banner button:hover {
+  background-color: #e64a19; /* Darker shade on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
+}

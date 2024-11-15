@@ -1,0 +1,35 @@
+/* Apply flexbox to ensure the footer stays at the bottom */
+body,
+html {
+  height: 100%; /* Ensure the body and html fill the full height of the viewport */
+  margin: 0;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensure the container takes up the full viewport height */
+}
+
+.footer {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  flex-shrink: 0; /* Ensure the footer doesn't shrink and stays at the bottom */
+}
+
+.footer ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.footer ul li {
+  display: inline;
+  margin: 0 15px;
+}
+
+.footer ul li a {
+  color: white;
+  text-decoration: none;
+}
