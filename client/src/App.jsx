@@ -4,14 +4,41 @@ import { ethers } from "ethers";
 import "./App.css";
 import LandingPage from "./components/LandingPage";
 import TransactionsContext from "./hooks/useTransactions";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import NotFoundPage from "./components/NotFoundPage";
 
-const transactionsState = {
+let transactionsState = {
   departmentCreation: false,
   employeeCreation: false,
   salaryUpdate: false,
 };
 
 function App() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    // Event listener for going offline
+    const handleOffline = () => {
+      setIsOnline(false);
+      alert("You are offline. Please check your internet connection.");
+    };
+
+    // Event listener for coming back online
+    const handleOnline = () => {
+      setIsOnline(true);
+      alert("You are back online!");
+    };
+
+    // Attach event listeners
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    // Cleanup event listeners on component unmount
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
   const [state, setState] = useState({
     provider: null,
     signer: null,
@@ -20,14 +47,20 @@ function App() {
 
   const [txStatuses, setTxStatutes] = useState(transactionsState);
 
+  const toggleStatus = (fieldName) => {
+    console.log(
+      "toggle " + fieldName + " current state = " + txStatuses[fieldName]
+    );
+    setTxStatutes((prevStatuses) => ({
+      ...prevStatuses,
+      [fieldName]: !prevStatuses[fieldName],
+    }));
+  };
   const [account, setAccount] = useState("Not connected");
   useEffect(() => {
     const template = async () => {
       const contractAddres = "0xdb1638057E0605aDB69B9EC176D1f283D6FD10c8";
       const contractABI = abi.abi;
-      //Metamask part
-      //1. In order do transactions on goerli testnet
-      //2. Metmask consists of infura api which actually help in connectig to the blockhain
       try {
         const { ethereum } = window;
         const account = await ethereum.request({
@@ -65,16 +98,29 @@ function App() {
 
         setState({ provider, signer, contract });
       } catch (error) {
+        if (error.code === -32603) {
+          alert("No internet connection");
+        }
         console.log(error);
       }
     };
     template();
   }, []);
   return (
-    <TransactionsContext.Provider value={{ txStatuses, setTxStatutes }}>
-      <div>
-        <LandingPage state={state} account={account} />
-      </div>
+    <TransactionsContext.Provider
+      value={{ txStatuses, setTxStatutes, toggleStatus }}
+    >
+      <Router>
+        <div>
+          <Routes>
+            <Route
+              path="/"
+              element={<LandingPage state={state} account={account} />}
+            />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </div>
+      </Router>
     </TransactionsContext.Provider>
   );
 }

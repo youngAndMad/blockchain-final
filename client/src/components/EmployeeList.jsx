@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import Modal from "react-modal";
-import "./EmployeeList.css"; // Import the new CSS file for styling
+import "./EmployeeList.css";
 import TransactionsContext from "../hooks/useTransactions";
 
-// Make sure to bind modal to your app element (important for accessibility)
 Modal.setAppElement("#root");
 
 // todo: wait during tx
@@ -21,19 +20,25 @@ const Employees = ({ state }) => {
   });
   const [selectedEmployeeIndex, setSelectedEmployeeIndex] = useState(null);
   const [updatedSalary, setUpdatedSalary] = useState("");
-  const txStatuses = useContext(TransactionsContext);
+  const { txStatuses, toggleStatus } = useContext(TransactionsContext);
 
   useEffect(() => {
-    console.log(txStatuses);
     const load = async () => {
-      const { contract } = state;
+      try {
+        const { contract } = state;
 
-      if (contract !== null) {
-        let list = await contract.getEmployees();
-        setEmployees(list);
-        let deptList = await contract.getDepartment();
-        console.log(deptList);
-        setDepartments(deptList);
+        if (contract !== null) {
+          let list = await contract.getEmployees();
+          setEmployees(list);
+          let deptList = await contract.getDepartment();
+          console.log(deptList);
+          setDepartments(deptList);
+        }
+      } catch (e) {
+        console.error(e);
+        if (e.code === -32603) {
+          alert("No internet connection!!!");
+        }
       }
     };
     load();
@@ -41,11 +46,18 @@ const Employees = ({ state }) => {
 
   const handleCreateDepartment = async () => {
     const { contract } = state;
-    if (txStatuses.departmentCreation === true) {
-      console.log("Department creation does not finished. Please wait!!!");
-    }
     if (newDepartment && contract !== null) {
+      if (txStatuses.departmentCreation === true) {
+        console.log("Department creation does not finished. Please wait!!!");
+        return;
+      }
+
+      toggleStatus("departmentCreation");
+
       await contract.addDepartment(newDepartment);
+
+      toggleStatus("departmentCreation");
+
       setDepartments([...departments, { name: newDepartment }]);
       setDepartmentModalOpen(false);
       setNewDepartment("");
@@ -60,6 +72,14 @@ const Employees = ({ state }) => {
       newEmployee.department &&
       contract !== null
     ) {
+      console.log(txStatuses);
+      if (txStatuses.employeeCreation === true) {
+        alert("Employee already creating. Please wait!!!");
+        return;
+      }
+
+      toggleStatus("employeeCreation");
+
       await contract.createEmployee(
         newEmployee.name,
         newEmployee.department,
@@ -68,6 +88,8 @@ const Employees = ({ state }) => {
           value: 1, // assuming minimum ether requirement to create an employee
         }
       );
+      toggleStatus("employeeCreation");
+
       let list = await contract.getEmployees();
       setEmployees(list);
       setEmployeeModalOpen(false);
@@ -94,14 +116,16 @@ const Employees = ({ state }) => {
     <div className="employee-list-container">
       <h2 className="employee-list-header">Employee List</h2>
 
-      <div className="button-group">
-        <button className="btn" onClick={() => setDepartmentModalOpen(true)}>
-          Create Department
-        </button>
-        <button className="btn" onClick={() => setEmployeeModalOpen(true)}>
-          Create Employee
-        </button>
-      </div>
+      {state.contract && (
+        <div className="button-group">
+          <button className="btn" onClick={() => setDepartmentModalOpen(true)}>
+            Create Department
+          </button>
+          <button className="btn" onClick={() => setEmployeeModalOpen(true)}>
+            Create Employee
+          </button>
+        </div>
+      )}
 
       <table className="employee-table">
         <thead>
@@ -131,15 +155,17 @@ const Employees = ({ state }) => {
                   ).toLocaleString()}
                 </td>
                 <td>
-                  <button
-                    className="btn-small"
-                    onClick={() => {
-                      setSelectedEmployeeIndex(index);
-                      setUpdateSalaryModalOpen(true);
-                    }}
-                  >
-                    Update Salary
-                  </button>
+                  {state.contract && (
+                    <button
+                      className="btn-small"
+                      onClick={() => {
+                        setSelectedEmployeeIndex(index);
+                        setUpdateSalaryModalOpen(true);
+                      }}
+                    >
+                      Update Salary
+                    </button>
+                  )}
                 </td>
               </tr>
             ))
